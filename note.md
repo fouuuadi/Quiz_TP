@@ -15,3 +15,13 @@ les logs :
 < {"type":"tick","remaining":14}
 < {"type":"tick","remaining":13}
 < {"type":"results","correctIndex":1,"distribution":[0,1,0,0],"scores":{"fouad":1433}}
+
+
+pour le host-app pour cree le quiz
+
+Titre : `Quiz culture generale`
+- Question 1 : `Quelle est la capitale de la France ?`
+- Choix 1 : `Berlin`, Choix 2 : `Paris`, Choix 3 : `Madrid`, Choix 4 : `Rome`
+- Sélectionne le radio à côté de **Choix 2** (Paris = bonne réponse)
+- Timer : `20`
+- Clique **Créer le quiz
