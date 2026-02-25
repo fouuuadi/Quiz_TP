@@ -24,6 +24,7 @@ function App() {
   const [currentQuestion, setCurrentQuestion] = useState<Omit<QuizQuestion, 'correctIndex'> | null>(null)
   const [remaining, setRemaining] = useState(0)
   const [hasAnswered, setHasAnswered] = useState(false)
+  const [lastAnswerIndex, setLastAnswerIndex] = useState<number | null>(null)
   const [lastCorrect, setLastCorrect] = useState(false)
   const [score, setScore] = useState(0)
   const [rankings, setRankings] = useState<{ name: string; score: number }[]>([])
@@ -38,47 +39,50 @@ function App() {
 
     switch (lastMessage.type) {
       case 'joined': {
-        // TODO: Mettre a jour la liste des joueurs
-        // TODO: Passer en phase 'lobby'
-        // TODO: Effacer les erreurs
+        setPlayers(lastMessage.players)
+        setPhase('lobby')
+        setError(undefined)
         break
       }
 
       case 'question': {
-        // TODO: Mettre a jour currentQuestion avec lastMessage.question
-        // TODO: Mettre a jour remaining avec lastMessage.question.timerSec
-        // TODO: Reinitialiser hasAnswered a false
-        // TODO: Changer la phase en 'question'
+        setCurrentQuestion(lastMessage.question)
+        setRemaining(lastMessage.question.timerSec)
+        setHasAnswered(false)
+        setLastAnswerIndex(null)
+        setPhase('question')
         break
       }
 
       case 'tick': {
-        // TODO: Mettre a jour remaining avec lastMessage.remaining
+        setRemaining(lastMessage.remaining)
         break
       }
 
       case 'results': {
-        // TODO: Verifier si le joueur a repondu correctement
-        //   (comparer la reponse du joueur avec lastMessage.correctIndex)
-        // TODO: Mettre a jour lastCorrect (true/false)
-        // TODO: Recuperer le score du joueur depuis lastMessage.scores
-        // TODO: Changer la phase en 'feedback'
+        // On compare la reponse du joueur avec la bonne reponse
+        const correct = lastAnswerIndex === lastMessage.correctIndex
+        setLastCorrect(correct)
+        // On recupere le score du joueur depuis l'objet { nomJoueur: score }
+        const myScore = lastMessage.scores[playerName] ?? score
+        setScore(myScore)
+        setPhase('feedback')
         break
       }
 
       case 'leaderboard': {
-        // TODO: Mettre a jour rankings avec lastMessage.rankings
-        // TODO: Changer la phase en 'leaderboard'
+        setRankings(lastMessage.rankings)
+        setPhase('leaderboard')
         break
       }
 
       case 'ended': {
-        // TODO: Changer la phase en 'ended'
+        setPhase('ended')
         break
       }
 
       case 'error': {
-        // TODO: Stocker le message d'erreur dans le state error
+        setError(lastMessage.message)
         break
       }
     }
@@ -86,17 +90,16 @@ function App() {
 
   // --- Handlers ---
 
-  /** Appele quand le joueur soumet le formulaire de connexion */
   const handleJoin = (code: string, name: string) => {
-    // TODO: Sauvegarder le nom du joueur dans playerName
-    // TODO: Envoyer un message 'join' au serveur avec sendMessage
+    setPlayerName(name)
+    sendMessage({ type: 'join', quizCode: code, name })
   }
 
-  /** Appele quand le joueur clique sur un choix de reponse */
   const handleAnswer = (choiceIndex: number) => {
-    // TODO: Verifier que le joueur n'a pas deja repondu (hasAnswered)
-    // TODO: Marquer hasAnswered a true
-    // TODO: Envoyer un message 'answer' au serveur avec l'id de la question et le choiceIndex
+    if (hasAnswered) return
+    setHasAnswered(true)
+    setLastAnswerIndex(choiceIndex)
+    sendMessage({ type: 'answer', questionId: currentQuestion!.id, choiceIndex })
   }
 
   // --- Rendu par phase ---
