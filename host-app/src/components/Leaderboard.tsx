@@ -25,10 +25,15 @@ interface LeaderboardProps {
 function Leaderboard({ rankings }: LeaderboardProps) {
   return (
     <div className="phase-container">
-      {/* TODO: Titre "Classement" avec .leaderboard-title */}
+      <h2 className="leaderboard-title">Classement</h2>
       <div className="leaderboard">
-        {/* TODO: Pour chaque joueur dans rankings, afficher un .leaderboard-item */}
-        {/* TODO: Afficher rang, nom et score */}
+        {rankings.map((entry, index) => (
+          <div key={entry.name} className="leaderboard-item">
+            <span className="leaderboard-rank">{index + 1}</span>
+            <span className="leaderboard-name">{entry.name}</span>
+            <span className="leaderboard-score">{entry.score} pts</span>
+          </div>
+        ))}
       </div>
     </div>
   )
